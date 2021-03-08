@@ -26,6 +26,7 @@ python -m pip install -r requirements.txt
 ```
 python YourPlaysTVUsername
 ```
+That's it! The script will keep you informed in the process.
 
 ## Options
 ```
