@@ -6,7 +6,6 @@ import time
 from functools import cached_property
 from typing import List, Optional
 
-import requests
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchWindowException
 from selenium.webdriver.common.keys import Keys
@@ -27,12 +26,10 @@ class BaseArchivedWebPage:
             self.url: str = data.pop('url')
             self.timestamp: int = data.pop('timestamp')
 
-        def download(self, directory: str, file_name: str, overwrite: bool = False):
+        def download(self, directory: str, file_name: str):
             file_name = safe_download.get_valid_filename(file_name)
 
             path = os.path.join(directory, file_name)
-            if os.path.exists(path) and overwrite is False:
-                raise exceptions.AlreadyDownloaded(f"{path} seems to be already downloaded.")
 
             safe_download.safe_download_url(self.url, path)
 
@@ -41,7 +38,7 @@ class BaseArchivedWebPage:
         self._archived_snapshots = None
 
     def _cache(self):
-        self._archived_snapshots = requests.get(self.API_URL, params={'url': self.url}).json()["archived_snapshots"]
+        self._archived_snapshots = safe_download.safe_request(self.API_URL, params={'url': self.url}).json()["archived_snapshots"]
 
     def cache_if_not_cached(self):
         if self._archived_snapshots is None:
@@ -64,14 +61,12 @@ class BaseArchivedWebPage:
         self.cache_if_not_cached()
         return BaseArchivedWebPage.Snapshot(self._archived_snapshots['closest'])
 
-    def download_latest_snapshot(self, directory: str, file_name: str, overwrite=False):
-        self.snapshot.download(directory, file_name, overwrite)
-
 
 class ArchivedPlaysTVBrowser(BaseArchivedWebPage):
-    def __init__(self, user_name: str):
+    def __init__(self, user_name: str, headless=False):
         self.username = user_name
         self.browser = None
+        self.headless = headless
 
         super(ArchivedPlaysTVBrowser, self).__init__(url=f"http://plays.tv/u/{self.username}")
 
@@ -80,11 +75,12 @@ class ArchivedPlaysTVBrowser(BaseArchivedWebPage):
             self.browser.close()
         except NoSuchWindowException:
             pass
-        
+
     def launch_the_browser(self):
         options = Options()
-        # options.add_argument('headless')
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        if self.headless is True:
+            options.add_argument('headless')
 
         self.browser = webdriver.Chrome(options=options)
         self.browser.get(self.snapshot.url)
@@ -165,17 +161,27 @@ class ArchivedVideo(BaseArchivedWebPage):
     def __repr__(self):
         return f'{self.title}_{self.date_str}_{self.author}_{self.id}_{self.quality}.mp4'
 
+    def check_if_any_quality_exists(self, directory: str):
+        """This is quite sketchy but should do the trick."""
+        for file in os.listdir(directory):
+            if self.id in file:
+                raise exceptions.AlreadyDownloaded(f"Video is already downloaded: {file}")
+
     def download(self, directory: str, overwrite=False):
-        self.download_latest_snapshot(directory=directory, file_name=self.__repr__(), overwrite=overwrite)
+        if overwrite is False:
+            self.check_if_any_quality_exists(directory)
+
+        self.snapshot.download(directory=directory, file_name=self.__repr__())
 
     def attempt_to_download_highest_quality(self, directory: str, overwrite=False):
         for quality in self.QUALITIES:
             if quality == self.quality:
                 vid = self
             else:
-                vid = ArchivedVideo(web_obj=self.web_element, date_str=self.date_str, author_str=self.author,
+                vid = ArchivedVideo(web_obj=self.web_element,
+                                    date_str=self.date_str,
+                                    author_str=self.author,
                                     quality=quality)
-
             try:
                 vid.download(directory, overwrite)
             except exceptions.NotArchived:

@@ -77,7 +77,7 @@ def open_atomic(filepath, *args, **kwargs):
 
 
 def safe_download_url(url: str, path: str):
-    r = requests.get(url, stream=True)
+    r = safe_request(url, stream=True)
     r.raw.decode_content = True
     with open_atomic(path, 'wb') as f, tqdm(desc=path,
                                             total=int(r.headers.get('content-length', 0)),
@@ -86,3 +86,11 @@ def safe_download_url(url: str, path: str):
                                             unit_divisor=1024) as bar:
         for data in r.iter_content(chunk_size=1024):
             bar.update(f.write(data))
+
+
+def safe_request(*args, **kwargs):
+    """This function handles the timeouts by simply retrying."""
+    try:
+        return requests.get(*args, **kwargs, timeout=10)
+    except requests.Timeout:
+        return safe_request(*args, **kwargs)

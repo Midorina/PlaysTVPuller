@@ -30,7 +30,7 @@ That's it! The script will keep you informed in the process.
 
 ## Options
 ```
-usage: playstvpuller.py [-h] [-f] [-p PATH] username
+usage: playstvpuller.py [-h] [-p PATH] [-f] [--headless] username
 
 Download most of your Plays.TV videos from the web archive.
 
@@ -39,6 +39,7 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -f, --force           overwrite/re-download if the video is already downloaded
   -p PATH, --path PATH  the directory where all videos will be placed in
+  -f, --force           overwrite/re-download if the video is already downloaded
+  --headless            use a headless browser (no gui)
 ```
