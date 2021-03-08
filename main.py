@@ -46,15 +46,24 @@ try:
     browser.scroll_down_until_all_videos_are_visible()
 
     print(f"Done. Now processing each video...\n")
+    counter = 0
     for video in browser.get_all_visible_videos():
         print(f"Attempting to download the highest quality of video: {video.title}")
         try:
             video.attempt_to_download_highest_quality(directory=args.download_path, overwrite=args.overwrite)
-        except (exceptions.NotArchived, exceptions.AlreadyDownloaded) as e:
+        except exceptions.NotArchived as e:
             print(e)
+        except exceptions.AlreadyDownloaded as e:
+            print(e)
+            counter += 1
         else:
             print(f"Done!")
+            counter += 1
         finally:
             print()
+
+    print(f"We've successfully downloaded {counter} of your {browser.author_video_count} videos. "
+          f"({counter*100/browser.author_video_count}%)\n")
 finally:
     browser.close()
+    print("Thanks for using my script. | https://midorina.dev")
