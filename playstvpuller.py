@@ -10,14 +10,16 @@ parser.add_argument(
     'username',
     help='your Plays.TV username')
 parser.add_argument(
-    '--download_path',
-    default='downloads',
-    help='the directory where all videos will be placed in')
-parser.add_argument(
-    '--overwrite',
+    '-f', '--force',
     default=False,
     action='store_true',
     help='overwrite/re-download if the video is already downloaded')
+parser.add_argument(
+    '-p',
+    '--path',
+    default='downloads',
+    metavar='PATH',
+    help='the directory where all videos will be placed in')
 
 args = parser.parse_args()
 
@@ -40,7 +42,8 @@ try:
         exit()
 
     print(f"You seem to have {browser.total_video_count} videos on Plays.TV\n"
-          f"{browser.author_video_count} of them are uploaded by you, and you're featured in {browser.featured_video_count} other videos.")
+          f"{browser.author_video_count} of them are uploaded by you, "
+          f"and you're featured in {browser.featured_video_count} other videos.")
 
     print("\nNow we will scroll down until all videos are visible. Please wait...")
     browser.scroll_down_until_all_videos_are_visible()
