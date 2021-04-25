@@ -24,7 +24,7 @@ python -m pip install -r requirements.txt
 ```
 3. Run the script with your Plays.TV username
 ```
-python YourPlaysTVUsername
+python playstvpuller.py YourPlaysTVUsername
 ```
 That's it! The script will keep you informed in the process.
 
