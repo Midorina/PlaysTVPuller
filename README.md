@@ -4,7 +4,7 @@ Download your PlaysTV videos after shutdown!
 This script will allow you to download almost all of your PlaysTV videos post shutdown.
 
 ## How does it work?
-It uses Internet Archive to access the latest archived version of your Plays TV profile and attempts to download each one of your videos with highest quality possible.
+It uses Internet Archive to access the latest archived version of your Plays TV profile and attempts to download each one of your videos with highest quality possible. (I was able to download %97 of my videos)
 
 ## Requirements
 1. [Python 3.7+](https://www.python.org/downloads/)
@@ -24,7 +24,7 @@ python -m pip install -r requirements.txt
 ```
 3. Run the script with your Plays.TV username
 ```
-python YourPlaysTVUsername
+python playstvpuller.py YourPlaysTVUsername
 ```
 That's it! The script will keep you informed in the process.
 
