@@ -37,7 +37,7 @@ pathlib.Path(args.download_path).mkdir(parents=True, exist_ok=True)
 browser = models.ArchivedPlaysTVBrowser(user_name=args.username, headless=args.headless)
 
 try:
-    print("https://midorina.dev || Feel free to contact me if you have questions or issues ♥\n\n"
+    print("https://midorina.dev || Feel free to contact me if you have questions or issues <3\n\n"
           "Launching the browser. Do not close it until we're done.\n"
           "Internet Archive's website is noticeably slow, so this may take a while...\n")
 
